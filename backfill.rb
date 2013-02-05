@@ -21,14 +21,14 @@ github.repos.list(:org => org, :type => "all").each_page do |p|
     github.repos.commits.list(org, repo.name, :since => since).each_page do |q|
       q.each do |commit|
         github.repos.commits.get(org, repo.name, commit.sha).tap do |c|
-          Commit.create(:repo       => repo.name,
-                        :sha        => commit.sha,
-                        :additions  => c.stats.additions,
-                        :deletions  => c.stats.deletions,
-                        :total      => c.stats.total,
-                        :email      => c.commit.author.email,
-                        :date       => c.commit.author['date'],
-                        :message    => c.commit.message)
+          Commit.find_or_create(:repo       => repo.name,
+                                :sha        => commit.sha,
+                                :additions  => c.stats.additions,
+                                :deletions  => c.stats.deletions,
+                                :total      => c.stats.total,
+                                :email      => c.commit.author.email,
+                                :date       => c.commit.author['date'],
+                                :message    => c.commit.message)
         end
       end
     end
