@@ -37,14 +37,14 @@ github.repos.list(:org => org, :type => "all").each_page do |p|
             end
           rescue => e
             pde e
-            sleep 5
+            sleep 60
             retry
           end
         end
       end
     rescue => e
       pde e
-      sleep 5
+      sleep 60
       retry
     end
   end
