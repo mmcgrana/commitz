@@ -15,9 +15,6 @@ github = Github.new(:oauth_token => github_oauth_token)
 backfill_since = Time.parse(ENV['BACKFILL_SINCE'] || raise("BACKFILL_SINCE")).utc.iso8601
 backfill_until = ENV['BACKFILL_UNTIL'] && Time.parse(ENV['BACKFILL_UNTIL']).utc.iso8601 || Time.now.utc.iso8601
 
-puts backfill_since
-puts backfill_until
-
 github_org = ENV['GITHUB_ORG'] || raise("GITHUB_ORG")
 ignored_repos = YAML::load(File.open("ignored_repoz.yaml")) rescue []
 
@@ -32,23 +29,23 @@ github.repos.list(:org => github_org, :type => "all").each_page do |p|
             begin
               pd :org => github_org, :repo => repo.name, :sha => commit.sha
               github.repos.commits.get(github_org, repo.name, commit.sha).tap do |c|
-                # Commit.find_or_create(:repo       => repo.name,
-                #                       :sha        => commit.sha,
-                #                       :additions  => c.stats.additions,
-                #                       :deletions  => c.stats.deletions,
-                #                       :total      => c.stats.total,
-                #                       :email      => c.commit.author.email,
-                #                       :date       => c.commit.author['date'],
-                #                       :message    => c.commit.message)
+                Commit.find_or_create(:repo       => repo.name,
+                                      :sha        => commit.sha,
+                                      :additions  => c.stats.additions,
+                                      :deletions  => c.stats.deletions,
+                                      :total      => c.stats.total,
+                                      :email      => c.commit.author.email,
+                                      :date       => c.commit.author['date'],
+                                      :message    => c.commit.message)
               end
-            rescue => e
+            rescue Github::Error::Forbidden => e
               pde e, :org => github_org, :repo => repo.name, :sha => commit.sha
               sleep 60
               retry
             end
           end
         end
-      rescue => e
+      rescue Github::Error::Forbidden => e
         pde e, :org => github_org, :repo => repo.name
         sleep 60
         retry
