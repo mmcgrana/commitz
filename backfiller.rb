@@ -19,7 +19,7 @@ puts backfill_since
 puts backfill_until
 
 github_org = ENV['GITHUB_ORG'] || raise("GITHUB_ORG")
-ignored_repos = YAML::load(File.open("ignored_repos.yaml")) rescue []
+ignored_repos = YAML::load(File.open("ignored_repoz.yaml")) rescue []
 
 pd :org => github_org
 github.repos.list(:org => github_org, :type => "all").each_page do |p|
