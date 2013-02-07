@@ -17,10 +17,77 @@ def commit(data)
   puts data.inspect
 end
 
+done = %w[
+ion
+heroku
+heartbeat
+kensa
+status-old
+docbrown
+andvari
+droid
+heroku-nav
+heroku-docs
+heroku-deploy-rails
+redistogo
+core
+ion
+shogun
+darwin
+addons
+heroku
+payments
+devcenter
+hermes
+logplex
+www
+deploymaster
+pgbackups
+pulse
+help
+wolfpack
+heartbeat
+varnish
+kensa
+status-old
+docbrown
+support-manager
+WAL-E
+mitt
+met
+kokyaku-soldo
+andvari
+_waterfall
+notifications
+partner-tracker
+mitosis
+logo-dev
+rendezvous
+capturestack
+henson
+muon
+configsha
+droid
+heroku-cedar
+envmonkey
+heroku-nav
+Datawarehouse
+heroku-docs
+heroku-groups
+apache.heroku.com
+memcache
+heroku-deploy-rails
+heroku-flags
+doozer-drawings
+heroku-mockups
+gobo
+]
+
 org = ENV['GITHUB_ORG']
 since = Time.parse(ENV['BACKFILL_SINCE']).utc.iso8601
 github.repos.list(:org => org, :type => "all").each_page do |p|
   p.each do |repo|
+    unless done.include?(repo.name)
     begin
       github.repos.commits.list(org, repo.name, :since => since).each_page do |q|
         q.each do |commit|
@@ -43,9 +110,10 @@ github.repos.list(:org => org, :type => "all").each_page do |p|
         end
       end
     rescue => e
-      pde e
+      pde e, :repo => repo.name
       sleep 60
       retry
+    end
     end
   end
 end
