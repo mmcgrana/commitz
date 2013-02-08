@@ -38,17 +38,26 @@ github.repos.list(:org => github_org, :type => "all").each_page do |p|
                                       :date       => c.commit.author['date'],
                                       :message    => c.commit.message)
               end
-            rescue Github::Error::Forbidden => e
+            rescue Github::Error::Forbidden, Faraday::Error::ConnectionFailed, Errno::ETIMEDOUT => e
               pde e, :org => github_org, :repo => repo.name, :sha => commit.sha
               sleep 60
               retry
+            rescue => e
+              pde e, :org => github_org, :repo => repo.name, :sha => commit.sha
+              raise
             end
           end
         end
-      rescue Github::Error::Forbidden => e
+      rescue Github::Error::Forbidden, Faraday::Error::ConnectionFailed, Errno::ETIMEDOUT => e
         pde e, :org => github_org, :repo => repo.name
         sleep 60
         retry
+      rescue Github::Error::ServiceError => e
+        pde e, :org => github_org, :repo => repo.name
+        retry unless /409 Git Repository is empty/ =~ e.message
+      rescue => e
+        pde e, :org => github_org, :repo => repo.name
+        raise
       end
     end
   end
