@@ -31,17 +31,19 @@ begin
             q.each do |commit|
               begin
                 pd :repo => repo.name, :sha => commit.sha
-                github.repos.commits.get(github_org, repo.name, commit.sha).tap do |c|
-                  pd :sha_remaining => c.ratelimit_remaining
-                  sleep 60*60/8 if c.ratelimit_remaining.to_i < 1
-                  Commit.find_or_create(:repo       => repo.name,
-                                        :sha        => commit.sha,
-                                        :additions  => c.stats.additions,
-                                        :deletions  => c.stats.deletions,
-                                        :total      => c.stats.total,
-                                        :email      => c.commit.author.email,
-                                        :date       => c.commit.author['date'],
-                                        :message    => c.commit.message)
+                unless Commit.find(:repo => repo.name, :sha => commit.sha)
+                  github.repos.commits.get(github_org, repo.name, commit.sha).tap do |c|
+                    pd :sha_remaining => c.ratelimit_remaining
+                    sleep 60*60/8 if c.ratelimit_remaining.to_i < 1
+                    Commit.find_or_create(:repo       => repo.name,
+                                          :sha        => commit.sha,
+                                          :additions  => c.stats.additions,
+                                          :deletions  => c.stats.deletions,
+                                          :total      => c.stats.total,
+                                          :email      => c.commit.author.email,
+                                          :date       => c.commit.author['date'],
+                                          :message    => c.commit.message)
+                  end
                 end
               rescue Github::Error::Forbidden, Faraday::Error::ConnectionFailed, Errno::ETIMEDOUT => e
                 pde e, :repo => repo.name, :sha => commit.sha
