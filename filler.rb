@@ -68,10 +68,10 @@ begin
     end
   end
 rescue Github::Error::Forbidden, Faraday::Error::ConnectionFailed, Errno::ETIMEDOUT => e
-  pde e, :repo => repo.name, :sha => commit.sha
+  pde e
   sleep 60*60/8 if e.message.include?("403 API Rate Limit Exceeded")
   retry
 rescue => e
-  pde e, :repo => repo.name, :sha => commit.sha
+  pde e
   raise
 end
