@@ -62,7 +62,7 @@ begin
           retry unless /409 Git Repository is empty/ =~ e.message
         rescue => e
           pde e, :repo => repo.name
-          raise
+          retry
         end
       end
     end
@@ -73,5 +73,5 @@ rescue Github::Error::Forbidden, Faraday::Error::ConnectionFailed, Errno::ETIMED
   retry
 rescue => e
   pde e
-  raise
+  retry
 end
