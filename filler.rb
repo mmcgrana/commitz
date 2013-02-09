@@ -14,7 +14,7 @@ github = Github.new(:oauth_token => github_oauth_token)
 github_org = ENV['GITHUB_ORG'] || raise("GITHUB_ORG")
 ignored_repos = YAML::load(File.open("ignored_repos.yaml"))[github_org] rescue []
 
-ctx :app => "commitz", :task => "backfiller", :org => github_org
+ctx :app => "commitz", :org => github_org
 pd :ignored_repos => ignored_repos.to_s
 
 github.repos.list(:org => github_org, :type => "all").each_page do |p|
