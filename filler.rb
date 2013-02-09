@@ -19,20 +19,20 @@ pd :ignored_repos => ignored_repos.to_s
 
 github.repos.list(:org => github_org, :type => "all").each_page do |p|
   pd :repo_remaining => p.ratelimit_remaining
-  sleep 60*60/4 if p.ratelimit_remaining.to_i < 1
+  sleep 60*60/8 if p.ratelimit_remaining.to_i < 1
   p.each do |repo|
     unless ignored_repos.include?(repo.name)
       begin
         pd :repo => repo.name, :since => BACKFILL_SINCE, :until => BACKFILL_UNTIL
         github.repos.commits.list(github_org, repo.name, :since => BACKFILL_SINCE, :until => BACKFILL_UNTIL).each_page do |q|
           pd :commit_remaining => q.ratelimit_remaining
-          sleep 60*60/4 if q.ratelimit_remaining.to_i < 1
+          sleep 60*60/8 if q.ratelimit_remaining.to_i < 1
           q.each do |commit|
             begin
               pd :repo => repo.name, :sha => commit.sha
               github.repos.commits.get(github_org, repo.name, commit.sha).tap do |c|
                 pd :sha_remaining => c.ratelimit_remaining
-                sleep 60*60/4 if c.ratelimit_remaining.to_i < 1
+                sleep 60*60/8 if c.ratelimit_remaining.to_i < 1
                 Commit.find_or_create(:repo       => repo.name,
                                       :sha        => commit.sha,
                                       :additions  => c.stats.additions,
@@ -44,6 +44,7 @@ github.repos.list(:org => github_org, :type => "all").each_page do |p|
               end
             rescue Github::Error::Forbidden, Faraday::Error::ConnectionFailed, Errno::ETIMEDOUT => e
               pde e, :repo => repo.name, :sha => commit.sha
+              sleep 60*60/8 if e.message.include?("403 API Rate Limit Exceeded")
               retry
             rescue => e
               pde e, :repo => repo.name, :sha => commit.sha
@@ -53,6 +54,7 @@ github.repos.list(:org => github_org, :type => "all").each_page do |p|
         end
       rescue Github::Error::Forbidden, Faraday::Error::ConnectionFailed, Errno::ETIMEDOUT => e
         pde e, :repo => repo.name
+        sleep 60*60/8 if e.message.include?("403 API Rate Limit Exceeded")
         retry
       rescue Github::Error::ServiceError => e
         pde e, :repo => repo.name
