@@ -16,19 +16,26 @@ backfill_since = Time.parse(ENV['BACKFILL_SINCE'] || raise("BACKFILL_SINCE")).ut
 backfill_until = ENV['BACKFILL_UNTIL'] && Time.parse(ENV['BACKFILL_UNTIL']).utc.iso8601 || Time.now.utc.iso8601
 
 github_org = ENV['GITHUB_ORG'] || raise("GITHUB_ORG")
-ignored_repos = YAML::load(File.open("ignored_repoz.yaml")) rescue []
+ignored_repos = YAML::load(File.open("ignored_repos.yaml"))[github_org] rescue []
 
-pd :org => github_org
+ctx :app => "commitz", :task => "backfiller", :org => github_org
+pd :ignored_repos => ignored_repos.to_s
 github.repos.list(:org => github_org, :type => "all").each_page do |p|
+  pd :repo_remaining => p.ratelimit_remaining
+  sleep 60*60/4 if p.ratelimit_remaining.to_i < 1
   p.each do |repo|
     unless ignored_repos.include?(repo.name)
       begin
-        pd :org => github_org, :repo => repo.name
+        pd :repo => repo.name, :since => backfill_since, :until => backfill_until
         github.repos.commits.list(github_org, repo.name, :since => backfill_since, :until => backfill_until).each_page do |q|
+          pd :commit_remaining => q.ratelimit_remaining
+          sleep 60*60/4 if q.ratelimit_remaining.to_i < 1
           q.each do |commit|
             begin
-              pd :org => github_org, :repo => repo.name, :sha => commit.sha
+              pd :repo => repo.name, :sha => commit.sha
               github.repos.commits.get(github_org, repo.name, commit.sha).tap do |c|
+                pd :sha_remaining => c.ratelimit_remaining
+                sleep 60*60/4 if c.ratelimit_remaining.to_i < 1
                 Commit.find_or_create(:repo       => repo.name,
                                       :sha        => commit.sha,
                                       :additions  => c.stats.additions,
@@ -39,24 +46,22 @@ github.repos.list(:org => github_org, :type => "all").each_page do |p|
                                       :message    => c.commit.message)
               end
             rescue Github::Error::Forbidden, Faraday::Error::ConnectionFailed, Errno::ETIMEDOUT => e
-              pde e, :org => github_org, :repo => repo.name, :sha => commit.sha
-              sleep 60
+              pde e, :repo => repo.name, :sha => commit.sha
               retry
             rescue => e
-              pde e, :org => github_org, :repo => repo.name, :sha => commit.sha
+              pde e, :repo => repo.name, :sha => commit.sha
               raise
             end
           end
         end
       rescue Github::Error::Forbidden, Faraday::Error::ConnectionFailed, Errno::ETIMEDOUT => e
-        pde e, :org => github_org, :repo => repo.name
-        sleep 60
+        pde e, :repo => repo.name
         retry
       rescue Github::Error::ServiceError => e
-        pde e, :org => github_org, :repo => repo.name
+        pde e, :repo => repo.name
         retry unless /409 Git Repository is empty/ =~ e.message
       rescue => e
-        pde e, :org => github_org, :repo => repo.name
+        pde e, :repo => repo.name
         raise
       end
     end
