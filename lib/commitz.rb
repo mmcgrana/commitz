@@ -5,12 +5,20 @@ require "rush"
 require "scrolls"
 require "sequel"
 
-require "./lib/commitz/config"
+Sequel.connect(Config.database_url)
 
 module Commitz
-  Sequel.connect(Config.database_url)
-
   class Commit < Sequel::Model
+  end
+
+  module Config
+    def self.env!(key)
+      ENV[key] || raise("missing ENV['#{key}']")
+    end
+    def self.github_auth; env!("GITHUB_AUTH"); end
+    def self.github_org; env!("GITHUB_ORG"); end
+    def self.database_url; env!("DATABASE_URL"); end
+    def self.ignored_repos; env!("IGNORED_REPOS"); end
   end
 
   module Runner

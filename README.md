@@ -12,7 +12,7 @@ $ heroku config:add GITHUB_ORG_="heroku"
 $ heroku config:add IGNORED_REPOS="otp,redistogo"
 $ git push heroku master
 $ heroku run bundle exec bin/migrate
-$ heroku scale runner=1
+$ heroku scale run=1
 
 $ heroku pg:psql
 > \d commits

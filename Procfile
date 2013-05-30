@@ -1,1 +1,1 @@
-runner: bundle exec bin/runner
+run: bundle exec bin/run
