@@ -37,6 +37,9 @@ GEM
       rack (~> 1.2)
     pg (0.14.1)
     posix-spawn (0.3.6)
+    queue_classic (2.0.1)
+      pg (~> 0.14.0)
+      scrolls (~> 0.2.1)
     rack (1.5.2)
     rush (0.6.8)
       session
@@ -54,6 +57,7 @@ DEPENDENCIES
   json (~> 1.7.7)
   language_sniffer
   pg
+  queue_classic
   rush
   scrolls
   sequel

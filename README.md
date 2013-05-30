@@ -12,9 +12,10 @@ $ heroku config:add GITHUB_ORG_="heroku"
 $ heroku config:add IGNORED_REPOS="otp,redistogo"
 $ git push heroku master
 $ heroku run bundle exec bin/migrate
-$ heroku scale run=1
+$ heroku run bundle exec bin/kick
+$ heroku scale process=20
 
 $ heroku pg:psql
 > \d commits
-> select * from commits limit 5;
+> select count(*);
 ```

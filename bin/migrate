@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
 sequel -m migrations "$DATABASE_URL"
+bundle exec ruby -r queue_classic -e "QC::Setup.create"
