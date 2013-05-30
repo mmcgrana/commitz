@@ -68,29 +68,15 @@ module Commitz
             commit_stats = commit.stats
             commit_diffs = commit_stats.files.map do |filename, _, _, diffs|
             language =
-              if filename =~ /(procfile|changelog|readme(.rdoc)?|license|rest|deb\/control|todo|copying|version|changes|gpl)$/i
-                "Text"
-              elsif filename =~ /(gemfile(\.lock)?|\.gem|spec\.opts)$/i
-                "Ruby"
-              elsif filename =~ /\.iss$/
-                "Windows"
-              elsif filename =~ /\.pem$/
-                "Pem"
-              elsif filename =~ /\.gitignore$/
-                "Git"
-              elsif filename =~ /\/deb\//
-                "Deb"
-              else
-                begin
-                  sniffed = LanguageSniffer.detect(filename).language
-                  if !sniffed
-                    Scrolls.log(:key => "missed_sniff", :repo_name => repo_name, :sha => commit.sha, :filename => filename)
-                  end
-                  sniffed && sniffed.name
-                rescue
-                  Scrolls.log(:key => "missing_file", :repo_name => repo_name, :sha => commit.sha, :filename => filename)
-                  nil
+              begin
+                sniffed = LanguageSniffer.detect(filename).language
+                if !sniffed
+                  Scrolls.log(:key => "missed_sniff", :repo_name => repo_name, :sha => commit.sha, :filename => filename)
                 end
+                sniffed && sniffed.name
+              rescue
+                Scrolls.log(:key => "missed_file", :repo_name => repo_name, :sha => commit.sha, :filename => filename)
+                nil
               end
               [language, diffs]
             end
