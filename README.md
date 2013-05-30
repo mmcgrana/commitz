@@ -14,7 +14,9 @@ $ heroku config:add IGNORED_REPOS="otp,redistogo"
 $ git push heroku master
 $ heroku run bundle exec bin/migrate
 $ heroku run bundle exec bin/kick
+$ heroku scale web=0
 $ heroku scale process=20
+$ heroku logs -t
 
 $ heroku pg:psql
 > \d commits
