@@ -19,5 +19,5 @@ $ heroku logs -t
 
 $ heroku pg:psql
 > \d commits
-> select count(*);
+> select count(*) from commits;
 ```
