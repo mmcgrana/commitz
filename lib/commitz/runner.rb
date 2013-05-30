@@ -111,13 +111,19 @@ module Commitz
       end
     end
 
+    def self.process_repo(repo_name)
+      Scrolls.log(:key => "process_repo", :repo_name => repo_name) do
+        get_repo(repo_name)
+        commits = get_commits(repo_name)
+        persist_commits(repo_name, commits)
+      end
+    end
+
     def self.start
       repo_names = get_repo_names
       repo_name = repo_names.first
-      repo_name = "heroku"
-      get_repo(repo_name)
-      commits = get_commits(repo_name)
-      persist_commits(repo_name, commits)
+      repo_name = "devcloud-ci"
+      process_repo(repo_name)
     end
   end
 end
