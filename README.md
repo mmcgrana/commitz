@@ -16,6 +16,5 @@ $ heroku scale runner=1
 
 $ heroku pg:psql
 > \d commits
-> \x
 > select * from commits limit 5;
 ```

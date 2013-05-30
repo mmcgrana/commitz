@@ -3,10 +3,16 @@ require "grit"
 require "language_sniffer"
 require "rush"
 require "scrolls"
+require "sequel"
 
 require "./lib/commitz/config"
 
 module Commitz
+  Sequel.connect(Config.database_url)
+
+  class Commit < Sequel::Model
+  end
+
   module Runner
     def self.get_repo_names
       Scrolls.log(:key => "get_repo_names") do
@@ -90,7 +96,16 @@ module Commitz
       Scrolls.log(:key => "persist_commits", :repo_name => repo_name) do
         commits.each do |commit|
           Scrolls.log(:key => "persist_commit", :repo_name => repo_name, :sha => commit[:sha]) do
-            puts(commit.merge(:repo => repo_name).inspect)
+            Commit.create(
+              :repo      => repo_name,
+              :sha       => commit[:sha],
+              :additions => commit[:additions],
+              :deletions => commit[:deletions],
+              :email     => commit[:email],
+              :date      => commit[:date],
+              :message   => commit[:message],
+              :language  => commit[:language]
+            )
           end
         end
       end
