@@ -34,7 +34,7 @@ module Commitz
       repo_names = get_repo_names
       repo_names.each do |repo_name|
         Scrolls.log(:key => "enqueue", :repo_name => repo_name) do
-          QC.enqueue("Commitz.process", repo_name)
+          QC.enqueue("Commitz.process_repo", repo_name)
         end
       end
     end
@@ -139,6 +139,10 @@ module Commitz
   end
 
   def self.process
-    process_repo(repo_name)
+    Scrolls.log(:key => "process")
+    trap("INT") { exit }
+    trap("TERM") { worker.stop }
+    worker = QC::Worker.new
+    worker.start
   end
 end

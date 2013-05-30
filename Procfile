@@ -1,1 +1,1 @@
-run: bundle exec bin/run
+process: bundle exec bin/process
