@@ -39,7 +39,7 @@ module Commitz
           Rush.bash("git reset --hard origin/master")
           repo = Grit::Repo.new(".")
           commits = Grit::Commit.find_all(repo, nil)
-          commits[0..10].map do |commit|
+          commits.map do |commit|
             Scrolls.log(:key => "get_commit", :repo_name => repo_name, :sha => commit.sha) do
               Rush.bash("git reset --hard #{commit.sha}")
               commit_stats = commit.stats
