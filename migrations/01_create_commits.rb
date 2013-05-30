@@ -2,8 +2,7 @@ Sequel.migration do
   change do
     create_table :commits do
       primary_key :id
-
-      column :repo,       "text"
+      column :repo_id,    "integer", 
       column :sha,        "text"
       column :additions,  "integer"
       column :deletions,  "integer"

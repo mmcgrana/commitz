@@ -1,6 +1,10 @@
 source "http://rubygems.org"
 
-gem "github_api", :git => "git://github.com/mfine/github.git"
+gem "json", "~> 1.7.7"
+gem "github_api"
+gem "grit"
+gem "rush"
+gem "language_sniffer"
 gem "pg"
 gem "sequel"
-gem "press"
+gem "scrolls"
