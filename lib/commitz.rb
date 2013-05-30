@@ -87,7 +87,7 @@ module Commitz
               end
               accum
             end
-            commit_language = commit_diffs.empty? ? nil : commit_total_diffs.sort_by { |langauge, diffs| -diffs }[0][0]
+            commit_language = commit_total_diffs.empty? ? nil : commit_total_diffs.sort_by { |langauge, diffs| -diffs }[0][0]
             {
               :sha => commit.sha,
               :additions => commit_stats.additions,
