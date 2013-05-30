@@ -81,8 +81,10 @@ module Commitz
               [language, diffs]
             end
             commit_total_diffs = commit_diffs.inject({}) do |accum, (language, diffs)|
-              accum[language] ||= 0
-              accum[language] += diffs
+              if language
+                accum[language] ||= 0
+                accum[language] += diffs
+              end
               accum
             end
             commit_language = commit_diffs.empty? ? nil : commit_total_diffs.sort_by { |langauge, diffs| -diffs }[0][0]
