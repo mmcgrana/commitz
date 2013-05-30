@@ -3,10 +3,15 @@ require "github_api"
 require "grit"
 require "language_sniffer"
 
+require "./lib/commitz/config"
+
 module Commitz
   module Runner
     def self.start
-      puts("work")
+      github = Github.new(:basic_auth => Commitz::Config.github_auth, :auto_pagination => true)
+      repo_names = github.repos.list(:org => "heroku").map { |r| r.name }
+      repo_name = repo_names.first
+      puts(repo_name)
     end
   end
 end
