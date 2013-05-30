@@ -61,7 +61,7 @@ module Commitz
           raise(e) if !(e.message =~ /unknown revision or path/)
         end
         repo = Grit::Repo.new(".")
-        commits = Grit::Commit.find_all(repo, nil)
+        commits = Grit::Commit.find_all(repo, nil, :timeout => 0)
         commits.map do |commit|
           Scrolls.log(:key => "get_commit", :repo_name => repo_name, :sha => commit.sha) do
             Rush.bash("git reset --hard #{commit.sha}")
