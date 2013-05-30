@@ -45,9 +45,9 @@ module Commitz
               commit_stats = commit.stats
               commit_diffs = commit_stats.files.map do |filename, _, _, diffs|
               language =
-                if ["Procfile", "CHANGELOG", "LICENSE", "License", "REST", "dist/resources/deb/control"].include?(File.basename(filename))
+                if filename =~ /(procfile|changelog|readme(.rdoc)?|license|rest|deb\/control|todo|copying|version|changes|gpl)$/i
                   "Text"
-                elsif filename =~ /Gemfile(\.lock)?|\.gem|spec\.opts$/
+                elsif filename =~ /(gemfile(\.lock)?|\.gem|spec\.opts)$/i
                   "Ruby"
                 elsif filename =~ /\.iss$/
                   "Windows"
