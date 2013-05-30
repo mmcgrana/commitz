@@ -25,7 +25,7 @@ module Commitz
   def self.get_repo_names
     Scrolls.log(:key => "get_repo_names") do
       github = Github.new(:basic_auth => Config.github_auth, :auto_pagination => true)
-      github.repos.list(:org => Config.github_org).map { |r| r.name }
+      github.repos.list(:org => Config.github_org, :type => "sources").map { |r| r.name }
     end
   end
 
