@@ -5,8 +5,8 @@ module Commitz
     end
 
     def self.github_auth; env!("GITHUB_AUTH"); end
+    def self.github_org; env!("GITHUB_ORG"); end
     def self.database_url; env!("DATABASE_URL"); end
     def self.ignored_repos; env!("IGNORED_REPOS"); end
-    def self.organization; env!("ORGANIZATION"); end
   end
 end

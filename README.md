@@ -7,7 +7,8 @@ Collect git commit metadata into a Postgres query for easy analysis.
 ```console
 $ heroku create
 $ heroku addons:add heroku-postgresql:crane
-$ heroku config:add ORGANIZATION="heroku"
+$ heroku config:add GITHUB_AUTH="<username>:<password>"
+$ heroku config:add GITHUB_ORG_="heroku"
 $ heroku config:add IGNORED_REPOS="otp,redistogo"
 $ git push heroku master
 $ heroku run bundle exec bin/migrate
