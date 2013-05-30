@@ -55,7 +55,11 @@ module Commitz
   def self.get_commits(repo_name)
     Scrolls.log(:key => "get_commits", :repo_name => repo_name) do
       Dir.chdir(local_repo_path(repo_name)) do
-        Rush.bash("git reset --hard origin/master")
+        begin
+          Rush.bash("git reset --hard origin/master")
+        rescue => e
+          raise(e) if !(e.message =~ /unknown revision or path/)
+        end
         repo = Grit::Repo.new(".")
         commits = Grit::Commit.find_all(repo, nil)
         commits.map do |commit|
