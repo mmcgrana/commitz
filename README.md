@@ -40,3 +40,10 @@ You may want to prune duplicate commits from forked / copied repos:
 $ heroku pg:psql
 > delete from commits where exists(select * from commits c where c.sha = commits.sha and commits.id > c.id);
 ```
+
+And to drop commits from certain repos altogether:
+
+```console
+$ heroku pg:psql
+> delete from commits where repo = 'lxc';
+```
